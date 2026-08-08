@@ -7,7 +7,7 @@
     "checkThirdParty": false
   },
   "completion": {
-    "callSnippet": "Replace",
+    "callSnippet": "Disable",
     "workspaceWord": true,
     "showWord": "Fallback"
   }

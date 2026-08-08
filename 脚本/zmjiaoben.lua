@@ -1,43 +1,20 @@
--- require("test") -- 强制插队：先去跑我们的测试脚本
--- do return end
-
 -- zmjiaoben.lua
-local UiService = require("ui_service")
-local AppService = require("app_service")
-local LoginService = require("login_service")
-local TaskService = require("task_service")
+-- 项目启动入口：只负责拉起主控制器，不直接编排业务流程
 
-
-print("[Main] 脚本已启动，加载主流程...")
-
-local config, action = UiService.ShowAndGetConfig()
-if not UiService.HandleAction(config, action) then 
-    return 
+local MainController = require("controller/main_controller")
+local ok, err = pcall(MainController.Run)
+if not ok then
+  print("[Main] 主流程运行异常：" .. tostring(err))
+  toast("脚本运行异常：" .. tostring(err))
 end
 
-print("[Main] ======================================")
-print("[Main] 校验通过，开始执行上号...")
 
-local selected_channel_idx = config["cfg_channel"] 
+-- -- 执行测试
+-- local PresetSmoke = require("test/preset_smoke")
 
--- 第一步：大管家呼叫 AppService 拉起游戏
-local isAppReady = AppService.StartAppByIndex(selected_channel_idx, 15)
-
-if isAppReady then
-    print("[Main] App已成功拉起，开始执行登录校验流...")
-    
-    -- 第二步：大管家呼叫 LoginService 处理游戏内画面
-    -- 传入 60 秒的超时时间，并把界面的 config 传给它备用
-    local isLoginSuccess = LoginService.CheckAndLogin(60, config)
-    
-    if isLoginSuccess then
-        print("[Main] === 上号流程全部跑通，准备开始挂机打怪！ ===")
-        TaskService.RunTask(config)
-        -- TODO: 在这里继续写后续的打怪、跑日常逻辑
-        
-    else
-        print("[Main] 登录失败或画面卡死，终止脚本。")
-    end
-else
-    toast("启动APP失败，停止脚本！")
-end
+-- -- 使用 pcall 捕获执行异常并带上执行括号 ()
+-- local ok, err = pcall(PresetSmoke.run)
+-- if not ok then
+--     print("[Main] 测试运行异常：" .. tostring(err))
+--     toast("测试运行异常：" .. tostring(err))
+-- end
