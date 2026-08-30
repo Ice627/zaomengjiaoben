@@ -1,0 +1,5 @@
+local WaitEgg = {}
+
+
+
+return WaitEgg
