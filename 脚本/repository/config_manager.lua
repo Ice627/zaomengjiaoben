@@ -30,19 +30,39 @@ function ConfigManager.initGlobalConfig()
     return ConfigManager.globalData
 end
 
---- 保存全局配置
-function ConfigManager.saveGlobalConfig(newData)
-    if newData and type(newData) == "table" then
-        ConfigManager.globalData = newData
+--- 统一入口：保存平台返回的 UI 配置，并返回解析后的平铺 Lua table
+-- 平台 showUIEx 返回的 ret 是按标签页嵌套的 JSON 字符串（page0/page1/...），
+-- 此处统一处理：落盘原始 JSON + 解析 + 展平为平铺配置表，对外只暴露 Lua table
+-- @param ret 平台返回的 JSON 字符串
+-- @return table（平铺配置）或 nil
+function ConfigManager.saveAndGetConfig(ret)
+    if not ret or type(ret) ~= "string" or ret == "" then
+        return nil
     end
 
-    local ok = FileSave.write_json(ConfigManager.GLOBAL_PATH, ConfigManager.globalData)
-    if ok then
-        toast("全局配置保存成功！")
-    else
-        toast("全局配置保存失败！")
+    -- 1. 落盘原始 JSON（供下次启动恢复界面用）
+    local ok = FileSave.write_json(ConfigManager.GLOBAL_PATH, ret)
+    if not ok then
+        print("[ConfigManager] 全局配置保存失败")
     end
-    return ok
+
+    -- 2. 解析 JSON 并按标签页展平为 Lua table
+    local data = FileSave.parseJson(ret)
+    print(data)
+    if type(data) ~= "table" then
+        print("[ConfigManager] 全局配置解析失败")
+        return nil
+    end
+
+    local flat = {}
+    for _, page in pairs(data) do
+        if type(page) == "table" then
+            for k, v in pairs(page) do
+                flat[k] = v
+            end
+        end
+    end
+    return flat
 end
 
 -------------------------------------------------

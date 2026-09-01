@@ -3,6 +3,23 @@ local FileSave = {}
 local lrSDK = require("老狼孩插件懒人ROOT版")
 local PathConfig = require("config/path_config")
 
+--- 公共接口：解析 JSON 字符串为 Lua table（使用平台自带 jsonLib.decode）
+-- @param content JSON 字符串
+-- @return table 或 nil
+function FileSave.parseJson(content)
+    if type(content) ~= "string" or content == "" then
+        return nil
+    end
+
+    local ok, res = pcall(jsonLib.decode, content)
+    if ok and type(res) == "table" then
+        return res
+    end
+
+    print("[FileSave] JSON 解析失败：格式错误或损坏")
+    return nil
+end
+
 local function resolvePath(path)
     if path == nil or path == "" then
         return nil
@@ -38,7 +55,7 @@ function FileSave.readData(path)
         return nil 
     end
     
-    -- 3. 使用 pcall 保护调用，防止 JSON 格式损坏导致脚本崩溃
+    -- 3. 使用平台自带 jsonLib.decode 解析，pcall 保护防止格式损坏崩溃
     local ok, res = pcall(jsonLib.decode, content)
     if ok and type(res) == "table" then
         print("文件读取成功: " .. fullPath)
@@ -51,7 +68,8 @@ end
 
 --- 写入数据到 JSON 配置文件
 -- @param path 相对路径，如 "combo_config/preset.json"
--- @param data 需要保存的 table/json 数据
+-- @param json_str 必须是 JSON 字符串（由调用方生成，如 showUIEx 返回值）；
+--                 本层不做 Lua→JSON 转换，如需转换可使用平台自带 jsonLib.encode
 -- @return boolean(是否成功), string(提示信息)
 function FileSave.write_json(path, json_str)
     local fullPath = resolvePath(path)
@@ -59,14 +77,7 @@ function FileSave.write_json(path, json_str)
         return false, "文件路径为空"
     end
 
-    -- -- 1. 将 Table 数据转为 JSON 文本
-    -- local ok, json_str = pcall(jsonLib.encode, data)
-    -- if not ok then
-    --     print("JSON序列化失败")
-    --     return false, "JSON序列化失败"
-    -- end
-    
-    -- 2. 【核心修改】前置拦截：只有当文件真的不存在时，才调用创建函数
+    -- 1. 前置拦截：只有当文件真的不存在时，才调用创建函数
     if not lrSDK.文件类_判断文件或文件夹存在(fullPath) then
         if not lrSDK.文件类_创建文件_增强版(fullPath) then
             print("文件创建失败")
@@ -74,7 +85,7 @@ function FileSave.write_json(path, json_str)
         end
     end
     
-    -- 3. 【核心修改】使用你找到的老狼孩写入函数，"w" 模式代表覆盖写入
+    -- 2. 使用老狼孩写入函数，"w" 模式代表覆盖写入
     local is_success = lrSDK.文件类_写入文件内容(fullPath, json_str, "w")
     
     if is_success then

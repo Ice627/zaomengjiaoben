@@ -16,9 +16,15 @@ zmjiaoben/
 │   │   ├── app_service.lua               # 应用启动/渠道管理
 │   │   ├── login_service.lua             # 登录状态机
 │   │   ├── game_service.lua              # 游戏通用画面/设置操作
-│   │   ├── task_service.lua              # 任务流程
+│   │   ├── task_service.lua              # 任务分发（按编号路由到 task/）
 │   │   ├── preset_service.lua            # 预设槽位业务
 │   │   └── combo_service.lua             # 自定义连招保存
+│   ├── task/
+│   │   ├── common/
+│   │   │   └── base_task.lua             # 通用任务操作（翻卡/关弹窗/找色点击）
+│   │   └── quest/
+│   │       ├── kunlun_task.lua           # 昆仑山任务（继续挑战/扫荡71层）
+│   │       └── egg_task.lua              # 蹲蛋任务（预留骨架）
 │   ├── repository/
 │   │   ├── config_manager.lua            # 全局配置持久化
 │   │   ├── file_save.lua                 # 通用 JSON 文件读写
@@ -70,6 +76,8 @@ main_controller.lua
         +--> login_service.lua
         |      +--> game_service.lua
         +--> task_service.lua
+        +--> task/quest/kunlun_task.lua
+               +--> task/common/base_task.lua
                +--> game_service.lua
 ```
 
@@ -138,6 +146,7 @@ FileSave.write_json("combo_config/preset.json", data)
 ## 8. 未完成 / 预留
 
 - 未登录账号的自动登录逻辑：`service/login_service.lua` 中仍为预留 TODO
-- 龙宫任务：`service/task_service.lua` 中仅有占位分支
-- 战斗循环、日常 1050 活跃度、角色切换：可继续新增到 `service/` 下
+- 龙宫任务：`service/task_service.lua` 中仅有占位提示
+- 蹲蛋任务：`task/quest/egg_task.lua` 已建骨架，待 UI 增加任务选项后在 `service/task_service.lua` 挂载
+- 战斗循环、日常 1050 活跃度、角色切换：可继续新增到 `task/` 目录下
 - `config_manager.lua` 已保留为全局/连招配置持久化的扩展入口

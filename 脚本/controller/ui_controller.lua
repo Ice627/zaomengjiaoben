@@ -3,7 +3,7 @@
 local UiController = {}
 
 local PresetService = require("service/preset_service")
-local FileSave = require("repository/file_save")
+local ConfigManager = require("repository/config_manager")
 local BusinessConfig = require("config/business_config")
 local PathConfig = require("config/path_config")
 
@@ -12,8 +12,6 @@ local state = {
   savedConfig = nil,
 }
 
-
-
 local function onUIEvent(handle, event, arg1, arg2, arg3)
   if event == "onload" then
     print("[UIController] 配置窗口已加载")
@@ -21,10 +19,23 @@ local function onUIEvent(handle, event, arg1, arg2, arg3)
   end
 
   if event == "onclose" then
-    print("[onclose]点击继续，开始运行脚本")
-    closeWindow(handle,arg1)
-    elseif event == "onwebviewjsevent" then
-    print("webview事件",arg1,arg2,arg3)
+    if state.currentAction ~= "minimize" and state.currentAction ~= "exit" then
+      if arg1 then
+        -- 点击标题栏"确认/继续"：校验渠道
+        local channelIdx = getUISelected(handle, 0, "cfg_channel")
+
+        if channelIdx == 0 then
+          toast("请先选择对应的启动渠道！")
+          return -- 校验不通过，不关闭窗口，等用户重新选择
+        end
+
+        state.currentAction = "continue"
+      else
+        state.currentAction = "exit"
+      end
+    end
+
+    closeWindow(handle, arg1)
     return
   end
 
@@ -47,25 +58,6 @@ local function onUIEvent(handle, event, arg1, arg2, arg3)
     pcall(function()
       ui.saveProfile(BusinessConfig.DEFAULT_SAVE_PROFILE_PATH)
     end)
-
-  elseif arg2 == "btn_continue" then
-    local channelIdx = getUISelected(handle, 0, "cfg_channel")
-
-    if channelIdx == 0 then
-      toast("请先选择对应的启动渠道！")
-      return
-    end
-
-    state.savedConfig = {
-      cfg_channel    = channelIdx,
-      cfg_task_1     = getUISelected(handle, 0, "cfg_task_1"),
-      cfg_server_num = getUIText(handle, 0, "cfg_server_num"),
-      cfg_role_count = getUIText(handle, 0, "cfg_role_count"),
-    }
-
-    state.currentAction = "continue"
-    closeWindow(handle, true)
-    sleep(500)
 
   elseif arg2 == "btn_save_preset" then
     print("执行保存")
@@ -126,12 +118,17 @@ function UiController.HandleAction(config, action)
   return false
 end
 
+-- 展示界面并且获取配置
 function UiController.ShowAndGetConfig()
   state.currentAction = "continue"
   local ret = showUIEx(BusinessConfig.UI_FILE, -1, -1, -1, -1, onUIEvent)
 
-  FileSave.write_json(PathConfig.GLOBAL_CONFIG_FILE,ret)
-
+  -- 平台返回 JSON 字符串，由 config_manager 统一处理为平铺 Lua 配置表
+  local config = ConfigManager.saveAndGetConfig(ret)
+  if config then
+    state.savedConfig = config
+  end
+  
   if state.currentAction == "exit" then
     return nil, "exit"
   elseif state.currentAction == "minimize" then
