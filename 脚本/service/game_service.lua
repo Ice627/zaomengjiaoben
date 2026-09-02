@@ -1,19 +1,6 @@
 -- service/game_service.lua
 local GameService = {}
-
--- 关闭叉 (样式2：多点找色)
-function GameService.ClosePopup()
-    sleep(2000)
-    local x,y = findMultiColor(0,0,1279,719,"800909","-4|2|610808|12|10|e40303|18|0|460808|-2|-10|ff0000|-5|-5|bd0606|-2|-9|ff0000|4|9|ea0202|3|12|970808|-2|-2|910909|12|-9|ff0000|19|0|490e0e|11|-1|ff0000|5|-6|ff0000|4|6|ff0000|10|-11|800808|11|7|ff0000|-3|9|ff0000|14|12|e80303|11|-4|ff0000",4,0.8)
-    if x ~= -1 and y ~= -1 then
-        print("[GameService] 关闭活动 -> X: " .. x .. ", Y: " .. y)
-        toast("关闭活动 -> X: " .. x .. ", Y: " .. y)
-        tap(x, y)
-        sleep(1500)
-        return true
-    end
-    return false
-end
+local AllTask = require("task/all_task")
 
 -- 通用功能：点击地图/山峰目标
 function GameService.TapMount()
@@ -78,7 +65,7 @@ function GameService.SetOperationMode3()
     end
     
     print("[GameService] 准备调用 ClosePopup 关闭设置面板...")
-    GameService.ClosePopup()
+    AllTask.BaseTask.ClosePopup()
     sleep(1000)
     
     print("[GameService] 操作三设置流程执行完毕！")

@@ -44,9 +44,8 @@ function LoginService.ClosePopup_Type1()
 end
 
 -- 核心逻辑：上号登录状态机
-function LoginService.CheckAndLogin(timeoutSec, config)
+function LoginService.CheckAndLogin(timeoutSec)
     timeoutSec = timeoutSec or 20
-    config = config or {}
     local startTime = os.time()
     
     print("[LoginService] 开始检测登录状态，最长等待 " .. timeoutSec .. " 秒...")

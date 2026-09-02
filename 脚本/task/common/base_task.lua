@@ -2,13 +2,20 @@
 -- 通用任务工具：所有具体任务（爬山、蹲蛋等）复用的共有操作
 local BaseTask = {}
 
-local GameService = require("service/game_service")
-
--- 通用：关闭活动/公告弹窗（复用 game_service 的关弹窗逻辑）
-function BaseTask.CloseAllPopups()
-    GameService.ClosePopup()
-    return true
+-- 关红闭叉 (样式2：多点找色)
+function BaseTask.ClosePopup()
+    sleep(2000)
+    local x,y = findMultiColor(0,0,1279,719,"800909","-4|2|610808|12|10|e40303|18|0|460808|-2|-10|ff0000|-5|-5|bd0606|-2|-9|ff0000|4|9|ea0202|3|12|970808|-2|-2|910909|12|-9|ff0000|19|0|490e0e|11|-1|ff0000|5|-6|ff0000|4|6|ff0000|10|-11|800808|11|7|ff0000|-3|9|ff0000|14|12|e80303|11|-4|ff0000",4,0.8)
+    if x ~= -1 and y ~= -1 then
+        print("[GameService] 点击叉 -> X: " .. x .. ", Y: " .. y)
+        toast("点击叉 -> X: " .. x .. ", Y: " .. y)
+        tap(x, y)
+        sleep(1500)
+        return true
+    end
+    return false
 end
+
 
 -- 通用：翻卡（占位实现）
 -- @param count  翻卡次数

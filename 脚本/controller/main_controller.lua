@@ -6,22 +6,28 @@ local UiController = require("controller/ui_controller")
 local AppService = require("service/app_service")
 local LoginService = require("service/login_service")
 local TaskService = require("service/task_service")
+local ConfigManager = require("repository/config_manager")
 local BusinessConfig = require("config/business_config")
 local PathConfig = require("config/path_config")
+
 
 function MainController.Run()
   PathConfig.EnsureDirectories()
   print("[MainController] 脚本已启动，开始加载配置界面...")
 
-  -- 展示开始界面弹窗
-  local config, action = UiController.ShowAndGetConfig()
-  if not UiController.HandleAction(config, action) then
+  -- 启动时加载上次保存的全局配置到内存
+  ConfigManager.initGlobalConfig()
+
+  -- 展示开始界面弹窗（配置由 config_manager 统一管理）
+  local action = UiController.ShowAndGetConfig()
+  if not UiController.HandleAction(action) then
     return false
   end
 
   print("[MainController] 校验通过，开始执行上号...")
 
-  local selectedChannelIndex = config["cfg_channel"]
+  local config = ConfigManager.getGlobalConfig()
+  local selectedChannelIndex = config.page0.cfg_channel
   local isAppReady = AppService.StartAppByIndex(
   selectedChannelIndex,
   BusinessConfig.DEFAULT_APP_TIMEOUT_SEC
@@ -34,10 +40,7 @@ function MainController.Run()
 
   print("[MainController] App已成功拉起，开始执行登录校验流...")
 
-  local isLoginSuccess = LoginService.CheckAndLogin(
-  BusinessConfig.DEFAULT_LOGIN_TIMEOUT_SEC,
-  config
-  )
+  local isLoginSuccess = LoginService.CheckAndLogin(BusinessConfig.DEFAULT_LOGIN_TIMEOUT_SEC)
 
   if not isLoginSuccess then
     print("[MainController] 登录失败或画面卡死，终止脚本。")
@@ -45,7 +48,7 @@ function MainController.Run()
   end
 
   print("[MainController] 上号流程全部跑通，开始执行任务...")
-  return TaskService.RunTask(config)
+  return TaskService.RunTask()
 end
 
 return MainController

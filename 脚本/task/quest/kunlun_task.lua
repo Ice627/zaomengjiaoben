@@ -4,6 +4,7 @@ local KunlunTask = {}
 
 local GameService = require("service/game_service")
 local BaseTask = require("task/common/base_task")
+local ConfigManager = require("repository/config_manager")
 
 -- ==========================================
 -- 子步骤 1：判断是否要跳层
@@ -112,9 +113,11 @@ end
 -- ==========================================
 -- 任务入口
 -- ==========================================
-function KunlunTask.Run(config)
-    config = config or {}
+function KunlunTask.Run()
+    local config = ConfigManager.getGlobalConfig()
     print("[KunlunTask] 开始执行昆仑山任务...")
+    -- 示例：任务内直接读取全局配置（内存零 IO），如扫荡层数等
+    -- local freq = config.page2.cfg_kls_freq
     return goToKunlunShan()
 end
 

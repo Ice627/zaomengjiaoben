@@ -9,7 +9,6 @@ local PathConfig = require("config/path_config")
 
 local state = {
   currentAction = "continue",
-  savedConfig = nil,
 }
 
 local function onUIEvent(handle, event, arg1, arg2, arg3)
@@ -72,7 +71,7 @@ local function onUIEvent(handle, event, arg1, arg2, arg3)
 end
 
 local function showCountdownToast(config)
-  config = config or {}
+  config = config.page0 or {}
 
   local channelStr = BusinessConfig.GetChannelLabel(config.cfg_channel)
   local taskStr = BusinessConfig.GetTaskLabel(config.cfg_task_1)
@@ -101,7 +100,7 @@ local function showCountdownToast(config)
   print("--------------------------------------------------")
 end
 
-function UiController.HandleAction(config, action)
+function UiController.HandleAction(action)
   if action == "exit" then
     print("[UIController] 用户点击了退出，终止脚本。")
     sleep(500)
@@ -111,7 +110,7 @@ function UiController.HandleAction(config, action)
     sleep(500)
     return false
   elseif action == "continue" then
-    showCountdownToast(config)
+    showCountdownToast(ConfigManager.getGlobalConfig())
     return true
   end
 
@@ -121,21 +120,13 @@ end
 -- 展示界面并且获取配置
 function UiController.ShowAndGetConfig()
   state.currentAction = "continue"
+
   local ret = showUIEx(BusinessConfig.UI_FILE, -1, -1, -1, -1, onUIEvent)
 
-  -- 平台返回 JSON 字符串，由 config_manager 统一处理为平铺 Lua 配置表
-  local config = ConfigManager.saveAndGetConfig(ret)
-  if config then
-    state.savedConfig = config
-  end
-  
-  if state.currentAction == "exit" then
-    return nil, "exit"
-  elseif state.currentAction == "minimize" then
-    return nil, "minimize"
-  end
+  -- 平台返回 JSON 字符串，由 config_manager 统一处理：落盘 + 更新内存全局配置
+  ConfigManager.saveAndGetConfig(ret)
 
-  return state.savedConfig or {}, state.currentAction
+  return state.currentAction
 end
 
 return UiController

@@ -15,7 +15,8 @@ BusinessConfig.CHANNELS = {
 
 BusinessConfig.TASKS = {
     [1] = { label = "昆仑山", handler = "GoToKunlunShan" },
-    [2] = { label = "龙宫",   handler = nil },
+    [2] = { label = "蹲蛋",   handler = nil },
+    [3] = { label = "龙宫",   handler = nil },
 }
 
 function BusinessConfig.GetChannelPackage(idx)
