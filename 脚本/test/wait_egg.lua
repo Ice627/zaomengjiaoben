@@ -1,5 +1,0 @@
-local WaitEgg = {}
-
-
-
-return WaitEgg

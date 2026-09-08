@@ -9,8 +9,8 @@ function TaskService.RunTask()
   local config = ConfigManager.getGlobalConfig()
   local page0 = config.page0 or {}
   local task_id = page0.cfg_task_1 or 0
-
-  print("[TaskService] 读取到用户选择的任务编号: " .. tostring(task_id))
+  print(task_id)
+  print("[TaskService] 读取到用户选择的任务编号: " .. task_id)
 
   if task_id == 1 then
     -- 昆仑山任务（task/quest/kunlun_task.lua）
@@ -28,9 +28,7 @@ function TaskService.RunTask()
     return false
 
   else
-    -- 蹲蛋任务挂载示例（待 UI 增加对应任务选项后启用）：
-    -- local EggTask = require("task/quest/egg_task")
-    -- return EggTask.Run(config)
+    AllTask.EggTask.Run()
     print("[TaskService] 未选择有效任务，跳过执行。")
     return false
   end

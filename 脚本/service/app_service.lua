@@ -7,7 +7,6 @@ function AppService.StartApp(pkgName, timeoutSec)
     timeoutSec = timeoutSec or 10
     print("[AppService] 尝试启动应用：" .. tostring(pkgName))
     
-    stopApp(pkgName)
     sleep(1000)
     runApp(pkgName)
     

@@ -1,6 +1,6 @@
 -- service/login_service.lua
 local LoginService = {}
-local GameService = require("service/game_service")
+local UiAction = require("common/ui_action")
 
 -- 状态A：检测是否在【用户登录】弹窗界面
 function LoginService.IsNeedLogin()
@@ -31,12 +31,12 @@ function LoginService.ClosePopup_Type1()
     local index, x, y = findPic(0,0,0,0,"announcement_close.png","000000",4,0.9)
     
     if index > -1 then
-        print("[GameService] 关闭公告 -> X: " .. x .. ", Y: " .. y)
+        print("[LoginService] 关闭公告 -> X: " .. x .. ", Y: " .. y)
         toast("关闭公告 -> X: " .. x .. ", Y: " .. y)
         sleep(1000)
         tap(x, y) 
         -- 关掉弹窗后，给动画消失留一点时间
-        sleep(1500) 
+        sleep(2000) 
         return true
     end
     
@@ -78,7 +78,7 @@ function LoginService.CheckAndLogin(timeoutSec)
                 
                 -- 关闭广告和活动
                 LoginService.ClosePopup_Type1()
-                GameService.ClosePopup()
+                UIAction.ClickClosePopup()
                 print("[LoginService] 登录流程完毕，成功进入游戏！")
                 toast("登录流程完毕")
                 sleep(2000)

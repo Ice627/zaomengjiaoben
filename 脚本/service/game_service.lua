@@ -1,6 +1,11 @@
 -- service/game_service.lua
 local GameService = {}
-local AllTask = require("task/all_task")
+local BaseTask = require("task/common/base_task")
+
+-- 关闭红叉弹窗（委托通用任务模块）
+function GameService.ClosePopup()
+    return BaseTask.ClosePopup()
+end
 
 -- 通用功能：点击地图/山峰目标
 function GameService.TapMount()
@@ -65,7 +70,7 @@ function GameService.SetOperationMode3()
     end
     
     print("[GameService] 准备调用 ClosePopup 关闭设置面板...")
-    AllTask.BaseTask.ClosePopup()
+    BaseTask.ClosePopup()
     sleep(1000)
     
     print("[GameService] 操作三设置流程执行完毕！")

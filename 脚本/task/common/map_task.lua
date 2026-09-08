@@ -3,6 +3,8 @@
 local MapTask = {}
 
 local BaseTask = require("task/common/base_task")
+local UIAction = require("common/ui_action")
+local OcrService = require("service/ocr_service")
 
 function MapTask.Map(mapId)
   -- 检测地图按钮，然后点击
@@ -34,17 +36,23 @@ function MapTask.Map(mapId)
       -- TODO
     end
 
-    -- 点击确认
-    local x,y = findMultiColor(0,0,0,0,"255f00","-51|-26|339e00|-59|26|1d7305|56|31|207904|62|-31|50ac25",0,0.9)
-    if x ~= -1 and y ~= -1 then
+    if UIAction.ClickVillageButton(0) then
       -- 预防已经处于地图，点击右上角的叉
-      if BaseTask.ClosePopup() then
-        -- 已处于当前地图界面
-        toast("返回地图")
-        print("返回地图")
-      end
+      UIAction.ClickClosePopup()
+      -- 已处于当前地图界面
+      toast("返回地图")
+      print("返回地图")
+    else    
+      sleep(1000)
+      tap(790,443) -- 点击确定(极北)
+      tap(730,413) -- 点击确定(其他)
     end
   end
+end
+
+-- 点击确认
+function MapTask.ClickConfirm()
+  OcrService.FindAndTap({628,339,1003,570}, "确定")
 end
 
 return MapTask
